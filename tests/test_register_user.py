@@ -14,17 +14,19 @@ class TestRegisterUser:
         with allure.step('Сгенерировать данные для пользователя'):
             payload = generate_user_data()
 
-        with allure.step('Отправить POST-запрос на регистрацию пользоавтеля'):
+        with allure.step('Отправить POST-запрос на регистрацию пользователя'):
             response = requests.post(Urls.REGISTER_USER_URL, json=payload)
+            body = response.json()
 
         # Передаём accessToken фикстуре, чтобы она удалила пользователя после теста
-        cleanup_user.append(response.json()["accessToken"])
+        cleanup_user.append(body["accessToken"])
 
-        with allure.step('Проверить статус-код и сообщение об ошибке'):
-            assert response.status_code == 200
-            assert response.json()['success'] is True
-            assert response.json()['user']['name'] == payload['name']
-            assert response.json()['user']['email'] == payload['email']
+        assert response.status_code == 200
+        assert body['success'] is True
+        assert body['user']['name'] == payload['name']
+        assert body['user']['email'] == payload['email']
+        assert 'accessToken' in body
+        assert 'refreshToken' in body
 
     @allure.title('Сообщение об ошибке при повторной регистрации пользователя')
     def test_register_duplicate_user_error(self, registered_user):
@@ -32,19 +34,16 @@ class TestRegisterUser:
             payload = {
                 'email': registered_user['email'],
                 'password': registered_user['password'],
-                'name': registered_user['name'],
+                'name': registered_user['name']
             }
 
         with allure.step('Отправить POST-запрос на регистрацию уже созданного пользователя'):
             response = requests.post(Urls.REGISTER_USER_URL, json=payload)
 
-        with allure.step('Проверить статус-код и сообщение об ошибке'):
-            assert response.status_code == 403, (
-                f'Получен статус-код {response.status_code}, '
-                f'ожидался 403')
-            assert response.json()['message'] == Messages.REGISTER_USER_ALREADY_EXISTS, (
-                f'Получено сообщение "{response.json()["message"]}", '
-                f'ожидалось "{Messages.REGISTER_USER_ALREADY_EXISTS}"')
+        assert response.status_code == 403
+        assert response.json()['message'] == Messages.REGISTER_USER_ALREADY_EXISTS, (
+            f'Получено сообщение "{response.json()["message"]}", '
+            f'ожидалось "{Messages.REGISTER_USER_ALREADY_EXISTS}"')
 
     @allure.title('Ошибка при регистрации без обязательного поля: {missing_field}')
     @pytest.mark.parametrize(
@@ -60,10 +59,8 @@ class TestRegisterUser:
         with allure.step(f'Отправить POST-запрос на регистрацию без поля "{missing_field}"'):
             response = requests.post(Urls.REGISTER_USER_URL, json=payload)
 
-        with allure.step('Проверить статус-код и сообщение об ошибке'):
-            assert response.status_code == 403, (
-                f'Получен статус-код {response.status_code}, '
-                f'ожидался 403')
-            assert response.json()['message'] == Messages.REGISTER_USER_MISSING_FIELDS, (
-                f'Получено сообщение "{response.json()["message"]}", '
-                f'ожидалось "{Messages.REGISTER_USER_MISSING_FIELDS}"')
+        assert response.status_code == 403
+        assert response.json()['message'] == Messages.REGISTER_USER_MISSING_FIELDS, (
+            f'Получено сообщение "{response.json()["message"]}", '
+            f'ожидалось "{Messages.REGISTER_USER_MISSING_FIELDS}"')
+            
