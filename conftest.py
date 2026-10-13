@@ -1,6 +1,6 @@
 import pytest
 
-from helpers import delete_user, register_new_user
+from helpers import delete_user, register_new_user, login_user
 
 
 @pytest.fixture

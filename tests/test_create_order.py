@@ -21,6 +21,7 @@ class TestCreateOrder:
         assert response.status_code == 200
         assert response.json()['success'] is True
 
+
     @allure.title('Ошибка при создании заказа с ингредиентами без авторизации')
     def test_create_order_with_ingredients_unauthorized_error(self):
         with allure.step('Получить id двух ингредиентов'):
@@ -36,4 +37,30 @@ class TestCreateOrder:
             f'Получено сообщение "{body["message"]}", '
             f'ожидалось "{Messages.ORDERS_UNAUTHORIZED}"')
 
+
+    @allure.title('Ошибка при создании заказа без ингредиентов')
+    def test_create_order_without_ingredients_error(self, authorized_user):
+        with allure.step('Отправить POST-запрос на создание заказа без ингредиентов'):
+            payload = {'ingredients': []}
+            response = requests.post(Urls.ORDERS_URL, json=payload, headers={'Authorization': authorized_user})
+            body = response.json()
+
+        assert response.status_code == 400
+        assert body['success'] is False
+        assert body['message'] == Messages.ORDER_INGREDIENTS_REQUIRED, (
+            f'Получено сообщение "{body["message"]}", '
+            f'ожидалось "{Messages.ORDER_INGREDIENTS_REQUIRED}"')
+
+
+    @allure.title('Ошибка при создании заказа с неверным хешем ингредиента')
+    def test_create_order_with_invalid_ingredient_hash_error(self, authorized_user):
+        with allure.step('Сформировать заказ с несуществующим хешем ингредиента'):
+            invalid_ingredients = ['invalid_hash_1234567890']
+
+        with allure.step('Отправить POST-запрос на создание заказа с неверным хешем ингредиента'):
+            payload = {'ingredients': invalid_ingredients}
+            response = requests.post(Urls.ORDERS_URL, json=payload, headers={'Authorization': authorized_user})
+            body = response.json()
+
+        assert response.status_code == 500
     
