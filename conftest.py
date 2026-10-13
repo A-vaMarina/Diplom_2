@@ -27,4 +27,16 @@ def registered_user(cleanup_user):
     cleanup_user.append(user['accessToken'])
     return user
 
+@pytest.fixture
+def authorized_user(cleanup_user):
+    """
+    Регистрирует пользователя, логинит его,
+    возвращает accessToken, который используется
+    для запросов, требующих авторизацию.
+    Удаляет пользователя после теста.
+    """
+    user = register_new_user()
+    cleanup_user.append(user['accessToken'])
 
+    response = login_user(user['email'], user['password'])
+    return response.json()['accessToken']
