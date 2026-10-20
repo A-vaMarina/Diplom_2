@@ -1,21 +1,15 @@
 import pytest
 
-from helpers import delete_user, register_new_user, login_user
+from helpers import register_new_user
+from methods.auth_methods import AuthMethods
 
 
 @pytest.fixture
 def cleanup_user():
-    """
-    Постусловие для тестов на регистрацию пользователя.
-    Тест создаёт пользователя и передает фикстуре access_token.
-    После теста фикстура удаляет пользователя.
-    """
     tokens = []
-
     yield tokens
-
     for token in tokens:
-        delete_user(token)
+        AuthMethods.delete_user(token)
 
 @pytest.fixture
 def registered_user(cleanup_user):
@@ -38,5 +32,5 @@ def authorized_user(cleanup_user):
     user = register_new_user()
     cleanup_user.append(user['accessToken'])
 
-    response = login_user(user['email'], user['password'])
+    response = AuthMethods.login_user(user['email'], user['password'])
     return response.json()['accessToken']

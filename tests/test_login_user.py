@@ -1,8 +1,8 @@
-import requests
 import allure
 import pytest
 
-from data import Urls, Messages
+from data import Messages
+from methods.auth_methods import AuthMethods
 
 
 @allure.feature('Авторизация пользователя')
@@ -10,14 +10,13 @@ class TestLoginUser:
 
     @allure.title('Успешная авторизация существующего пользователя')
     def test_login_existing_user_success(self, registered_user):
-        with allure.step('Получить email и пароль зарегистрированного пользователя'):
+        with allure.step('Сформировать данные с email и паролем зарегистрированного пользователя'):
             payload = {
                 'email': registered_user['email'],
                 'password': registered_user['password']
             }
-        with allure.step('Отправить POST-запрос на авторизацию'):
-            response = requests.post(Urls.LOGIN_USER_URL, json=payload)
-            body = response.json()
+        response = AuthMethods.login_user(payload)
+        body = response.json()
 
         assert response.status_code == 200
         assert body['success'] is True
@@ -43,10 +42,8 @@ class TestLoginUser:
                 'password': registered_user['password'],
             }
             payload[wrong_field] = f'wrong_{payload[wrong_field]}'
-
-        with allure.step('Отправить POST-запрос на авторизацию с неверными данными'):
-            response = requests.post(Urls.LOGIN_USER_URL, json=payload)
-            body = response.json()
+        response = AuthMethods.login_user(payload)
+        body = response.json()
 
         assert response.status_code == 401, (
             f'Получен статус-код {response.status_code}, ожидался 401')

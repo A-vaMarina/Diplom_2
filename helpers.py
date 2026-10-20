@@ -2,28 +2,21 @@ import requests
 
 from data import Urls
 from generators import generate_user_data
+from methods.auth_methods import AuthMethods
 
-
-def delete_user(token):
-    return requests.delete(Urls.USER_URL, headers={'Authorization': token})
 
 def register_new_user():
     """
     Регистрация нового уникального пользователя.
-    Возвращает словарь {'email', 'password', 'name', 'accessToken'} или None, если регистрация не удалась.
+    Возвращает словарь с данными и токеном, либо None при ошибке.
     """
     payload = generate_user_data()
-    
-    response = requests.post(Urls.REGISTER_USER_URL, json=payload)
+    response = AuthMethods.register_user(payload)
     
     if response.status_code == 200:
         payload['accessToken'] = response.json()['accessToken']
         return payload
     return None
-
-def login_user(email, password):
-    payload = {'email': email, 'password': password}
-    return requests.post(Urls.LOGIN_USER_URL, json=payload)
 
 def get_ingredient_ids(count):
     """

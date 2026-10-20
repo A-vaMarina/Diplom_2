@@ -35,7 +35,7 @@
 
 Запуск тестов конкретной ручки, например, создание пользователя:
 
-> `$ pytest tests/test_create_user.py -v --alluredir=allure_results`
+> `$ pytest tests/test_register_user.py -v --alluredir=allure_results`
 
 **Посмотреть отчет Allur**
 

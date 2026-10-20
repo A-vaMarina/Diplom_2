@@ -1,8 +1,8 @@
-import requests
 import allure
 import pytest
 
-from data import Urls, Messages
+from methods.auth_methods import AuthMethods
+from data import Messages
 from generators import generate_user_data
 
 
@@ -11,13 +11,9 @@ class TestRegisterUser:
 
     @allure.title('Успешная регистрация уникального пользователя')
     def test_register_unique_user_success(self, cleanup_user):
-        with allure.step('Сгенерировать данные для пользователя'):
-            payload = generate_user_data()
-
-        with allure.step('Отправить POST-запрос на регистрацию пользователя'):
-            response = requests.post(Urls.REGISTER_USER_URL, json=payload)
-            body = response.json()
-
+        payload = generate_user_data()
+        response = AuthMethods.register_user(payload)
+        body = response.json()
         # Передаём accessToken фикстуре, чтобы она удалила пользователя после теста
         cleanup_user.append(body["accessToken"])
 
@@ -36,9 +32,7 @@ class TestRegisterUser:
                 'password': registered_user['password'],
                 'name': registered_user['name']
             }
-
-        with allure.step('Отправить POST-запрос на регистрацию уже созданного пользователя'):
-            response = requests.post(Urls.REGISTER_USER_URL, json=payload)
+        response = AuthMethods.register_user(payload)
 
         assert response.status_code == 403
         assert response.json()['message'] == Messages.REGISTER_USER_ALREADY_EXISTS, (
@@ -52,12 +46,10 @@ class TestRegisterUser:
         ids=['without_email', 'without_password', 'without_name'],
     )
     def test_register_missing_required_field_error(self, missing_field):
-        with allure.step('Сгенерировать данные и удалить одно обязательное поле'):
-            payload = generate_user_data()
+        payload = generate_user_data()
+        with allure.step(f'Удалить обязательное поле {missing_field}'):
             payload.pop(missing_field)
-
-        with allure.step(f'Отправить POST-запрос на регистрацию без поля "{missing_field}"'):
-            response = requests.post(Urls.REGISTER_USER_URL, json=payload)
+        response = AuthMethods.register_user(payload)
 
         assert response.status_code == 403
         assert response.json()['message'] == Messages.REGISTER_USER_MISSING_FIELDS, (
