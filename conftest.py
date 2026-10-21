@@ -9,7 +9,11 @@ def cleanup_user():
     tokens = []
     yield tokens
     for token in tokens:
-        AuthMethods.delete_user(token)
+        response = AuthMethods.delete_user(token)
+        assert response.status_code == 200, (
+            f'Не удалось удалить пользователя: '
+            f'{response.status_code} {response.text}'
+        )
 
 @pytest.fixture
 def registered_user(cleanup_user):

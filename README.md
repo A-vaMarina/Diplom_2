@@ -37,6 +37,6 @@
 
 > `$ pytest tests/test_register_user.py -v --alluredir=allure_results`
 
-**Посмотреть отчет Allur**
+**Посмотреть отчет Allure**
 
 > `$ allure serve allure_results`

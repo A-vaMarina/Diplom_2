@@ -13,11 +13,12 @@ class TestRegisterUser:
     def test_register_unique_user_success(self, cleanup_user):
         payload = generate_user_data()
         response = AuthMethods.register_user(payload)
+        
+        assert response.status_code == 200
         body = response.json()
         # Передаём accessToken фикстуре, чтобы она удалила пользователя после теста
         cleanup_user.append(body["accessToken"])
 
-        assert response.status_code == 200
         assert body['success'] is True
         assert body['user']['name'] == payload['name']
         assert body['user']['email'] == payload['email']
