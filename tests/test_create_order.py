@@ -1,5 +1,4 @@
 import allure
-import pytest
 
 from data import Messages
 from helpers import get_ingredient_ids
@@ -16,9 +15,14 @@ class TestCreateOrder:
         with allure.step('Подготовить данные для заказа с авторизацией'):
             payload = {'ingredients': ingredients}
         response = OrderMethods.create_order(payload, authorized_user)
-        
-        assert response.status_code == 200
-        assert response.json()['success'] is True
+        body = response.json()
+
+        with allure.step('Проверить, что заказ создался и в ответе есть номер заказа'):
+            assert response.status_code == 200
+            assert body['success'] is True
+            assert 'order' in body
+            assert 'number' in body['order']
+            assert isinstance(body['order']['number'], int)
 
 
     @allure.title('Ошибка при создании заказа с ингредиентами без авторизации')

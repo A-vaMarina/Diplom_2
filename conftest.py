@@ -13,24 +13,13 @@ def cleanup_user():
 
 @pytest.fixture
 def registered_user(cleanup_user):
-    """
-    Пред- и постусловие для тестов, которым нужен уже
-    зарегистрированный пользователь. Удаляет пользователя после теста.
-    """
     user = register_new_user()
     cleanup_user.append(user['accessToken'])
     return user
 
 @pytest.fixture
-def authorized_user(cleanup_user):
-    """
-    Регистрирует пользователя, логинит его,
-    возвращает accessToken, который используется
-    для запросов, требующих авторизацию.
-    Удаляет пользователя после теста.
-    """
-    user = register_new_user()
-    cleanup_user.append(user['accessToken'])
-
+def authorized_user(registered_user):
+    payload = {'email': registered_user['email'], 'password': registered_user['password']}
     response = AuthMethods.login_user(payload)
+    assert response.status_code == 200, f'Не удалось авторизовать пользователя: {response.status_code} {response.text}'
     return response.json()['accessToken']
