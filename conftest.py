@@ -32,5 +32,5 @@ def authorized_user(cleanup_user):
     user = register_new_user()
     cleanup_user.append(user['accessToken'])
 
-    response = AuthMethods.login_user(user['email'], user['password'])
+    response = AuthMethods.login_user(payload)
     return response.json()['accessToken']

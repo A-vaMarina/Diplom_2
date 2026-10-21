@@ -56,7 +56,6 @@ class TestCreateOrder:
             invalid_ingredients = ['invalid_hash_1234567890']
             payload = {'ingredients': invalid_ingredients}
         response = OrderMethods.create_order(payload, authorized_user)
-        body = response.json()
 
         assert response.status_code == 500
     

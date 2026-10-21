@@ -3,10 +3,10 @@ class Urls:
     BASE_URL = 'https://stellarburgers.education-services.ru'
 
     REGISTER_USER_URL = f'{BASE_URL}/api/auth/register'   # POST   — регистрация
-    LOGIN_USER_URL    = f'{BASE_URL}/api/auth/login'      # POST   — авторизация
-    ORDERS_URL      = f'{BASE_URL}/api/orders'            # POST — создание заказа
+    LOGIN_USER_URL = f'{BASE_URL}/api/auth/login'      # POST   — авторизация
+    ORDERS_URL = f'{BASE_URL}/api/orders'            # POST — создание заказа
     INGREDIENTS_URL = f'{BASE_URL}/api/ingredients'       # GET  — список ингредиентов
-
+    USER_URL = f'{BASE_URL}/api/auth/user' # DELETE - удаление пользователя
 
 class Messages:
 
