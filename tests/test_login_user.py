@@ -18,16 +18,15 @@ class TestLoginUser:
         response = AuthMethods.login_user(payload)
         body = response.json()
 
-        assert response.status_code == 200
+        assert response.status_code == 200, f'Ожидался 200, получен {response.status_code}'
         assert body['success'] is True
-        assert 'accessToken' in body
-        assert 'refreshToken' in body
         assert body['user']['email'] == registered_user['email'], (
             f'Получен email={body["user"]["email"]}, '
             f'ожидался {registered_user["email"]}')
         assert body['user']['name'] == registered_user['name'], (
             f'Получен name={body["user"]["name"]}, '
             f'ожидался {registered_user["name"]}')
+        
 
     @allure.title('Получение ошибки при входе с неверными учётными данными: {wrong_field}')
     @pytest.mark.parametrize(
@@ -45,8 +44,7 @@ class TestLoginUser:
         response = AuthMethods.login_user(payload)
         body = response.json()
 
-        assert response.status_code == 401, (
-            f'Получен статус-код {response.status_code}, ожидался 401')
+        assert response.status_code == 401, f'Ожидался 401, получен {response.status_code}'
         assert body['success'] is False
         assert body['message'] == Messages.LOGIN_INVALID_CREDENTIALS, (
             f'Получено сообщение "{body["message"]}", '

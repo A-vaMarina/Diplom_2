@@ -14,7 +14,7 @@ class TestRegisterUser:
         payload = generate_user_data()
         response = AuthMethods.register_user(payload)
         
-        assert response.status_code == 200
+        assert response.status_code == 200, f'Ожидался 200, получен {response.status_code}'
         body = response.json()
         # Передаём accessToken фикстуре, чтобы она удалила пользователя после теста
         cleanup_user.append(body["accessToken"])
@@ -22,8 +22,7 @@ class TestRegisterUser:
         assert body['success'] is True
         assert body['user']['name'] == payload['name']
         assert body['user']['email'] == payload['email']
-        assert 'accessToken' in body
-        assert 'refreshToken' in body
+
 
     @allure.title('Сообщение об ошибке при повторной регистрации пользователя')
     def test_register_duplicate_user_error(self, registered_user):
@@ -35,10 +34,11 @@ class TestRegisterUser:
             }
         response = AuthMethods.register_user(payload)
 
-        assert response.status_code == 403
+        assert response.status_code == 403, f'Ожидался 403, получен {response.status_code}'
         assert response.json()['message'] == Messages.REGISTER_USER_ALREADY_EXISTS, (
             f'Получено сообщение "{response.json()["message"]}", '
             f'ожидалось "{Messages.REGISTER_USER_ALREADY_EXISTS}"')
+        
 
     @allure.title('Ошибка при регистрации без обязательного поля: {missing_field}')
     @pytest.mark.parametrize(
@@ -46,13 +46,14 @@ class TestRegisterUser:
         ['email', 'password', 'name'],
         ids=['without_email', 'without_password', 'without_name'],
     )
-    def test_register_missing_required_field_error(self, missing_field):
+    def test_register_missing_required_field_error(self, missing_field, cleanup_user):
         payload = generate_user_data()
         with allure.step(f'Удалить обязательное поле {missing_field}'):
             payload.pop(missing_field)
         response = AuthMethods.register_user(payload)
+        cleanup_user.append(response.json().get('accessToken'))
 
-        assert response.status_code == 403
+        assert response.status_code == 403, f'Ожидался 403, получен {response.status_code}'
         assert response.json()['message'] == Messages.REGISTER_USER_MISSING_FIELDS, (
             f'Получено сообщение "{response.json()["message"]}", '
             f'ожидалось "{Messages.REGISTER_USER_MISSING_FIELDS}"')

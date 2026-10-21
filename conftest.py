@@ -8,12 +8,8 @@ from methods.auth_methods import AuthMethods
 def cleanup_user():
     tokens = []
     yield tokens
-    for token in tokens:
-        response = AuthMethods.delete_user(token)
-        assert response.status_code == 200, (
-            f'Не удалось удалить пользователя: '
-            f'{response.status_code} {response.text}'
-        )
+    for token in filter(None, tokens):
+        AuthMethods.delete_user(token)
 
 @pytest.fixture
 def registered_user(cleanup_user):

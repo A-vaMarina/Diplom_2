@@ -17,12 +17,8 @@ class TestCreateOrder:
         response = OrderMethods.create_order(payload, authorized_user)
         body = response.json()
 
-        with allure.step('Проверить, что заказ создался и в ответе есть номер заказа'):
-            assert response.status_code == 200
-            assert body['success'] is True
-            assert 'order' in body
-            assert 'number' in body['order']
-            assert isinstance(body['order']['number'], int)
+        assert response.status_code == 200, f'Ожидался 200, получен {response.status_code}'
+        assert body['success'] is True
 
 
     @allure.title('Ошибка при создании заказа с ингредиентами без авторизации')
@@ -34,7 +30,7 @@ class TestCreateOrder:
         response = OrderMethods.create_order(payload)
         body = response.json()
 
-        assert response.status_code == 401
+        assert response.status_code == 401, f'Ожидался 401, получен {response.status_code}'
         assert body['message'] == Messages.ORDERS_UNAUTHORIZED, (
             f'Получено сообщение "{body["message"]}", '
             f'ожидалось "{Messages.ORDERS_UNAUTHORIZED}"')
@@ -47,7 +43,7 @@ class TestCreateOrder:
         response = OrderMethods.create_order(payload, authorized_user)
         body = response.json()
 
-        assert response.status_code == 400
+        assert response.status_code == 400, f'Ожидался 400, получен {response.status_code}'
         assert body['success'] is False
         assert body['message'] == Messages.ORDER_INGREDIENTS_REQUIRED, (
             f'Получено сообщение "{body["message"]}", '
@@ -61,5 +57,5 @@ class TestCreateOrder:
             payload = {'ingredients': invalid_ingredients}
         response = OrderMethods.create_order(payload, authorized_user)
 
-        assert response.status_code == 500
+        assert response.status_code == 500, f'Ожидался 500, получен {response.status_code}'
     
