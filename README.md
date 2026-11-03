@@ -1,6 +1,6 @@
 ## Задание 2: Автотесты для API сервиса Stellar Burgers
 
-Сервис Stellar Burgers: https://qa-stellarburgers.education-services.ru
+Сервис Stellar Burgers: https://stellarburgers.education-services.ru/
 
 Документация API: https://code.s3.yandex.net/qa-automation-engineer/python-full/diploma/Api-Stellar_Burgers.pdf
 

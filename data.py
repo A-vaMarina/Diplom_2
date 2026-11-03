@@ -1,6 +1,6 @@
 class Urls:
 
-    BASE_URL = 'https://qa-stellarburgers.education-services.ru'
+    BASE_URL = 'https://stellarburgers.education-services.ru'
 
     REGISTER_USER_URL = f'{BASE_URL}/api/auth/register'   # POST   — регистрация
     LOGIN_USER_URL = f'{BASE_URL}/api/auth/login'         # POST   — авторизация
