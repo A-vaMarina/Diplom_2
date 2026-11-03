@@ -1,0 +1,52 @@
+import allure
+import pytest
+
+from data import Messages
+from methods.auth_methods import AuthMethods
+
+
+@allure.feature('Авторизация пользователя')
+class TestLoginUser:
+
+    @allure.title('Успешная авторизация существующего пользователя')
+    def test_login_existing_user_success(self, registered_user):
+        with allure.step('Сформировать данные с email и паролем зарегистрированного пользователя'):
+            payload = {
+                'email': registered_user['email'],
+                'password': registered_user['password']
+            }
+        response = AuthMethods.login_user(payload)
+        body = response.json()
+
+        assert response.status_code == 200, f'Ожидался 200, получен {response.status_code}'
+        assert body['success'] is True
+        assert body['user']['email'] == registered_user['email'], (
+            f'Получен email={body["user"]["email"]}, '
+            f'ожидался {registered_user["email"]}')
+        assert body['user']['name'] == registered_user['name'], (
+            f'Получен name={body["user"]["name"]}, '
+            f'ожидался {registered_user["name"]}')
+        
+
+    @allure.title('Получение ошибки при входе с неверными учётными данными: {wrong_field}')
+    @pytest.mark.parametrize(
+        'wrong_field',
+        ['email', 'password'],
+        ids=['wrong_email', 'wrong_password'],
+    )
+    def test_login_invalid_credentials_error(self, registered_user, wrong_field):
+        with allure.step(f'Сформировать данные с неверным полем "{wrong_field}"'):
+            payload = {
+                'email': registered_user['email'],
+                'password': registered_user['password'],
+            }
+            payload[wrong_field] = f'wrong_{payload[wrong_field]}'
+        response = AuthMethods.login_user(payload)
+        body = response.json()
+
+        assert response.status_code == 401, f'Ожидался 401, получен {response.status_code}'
+        assert body['success'] is False
+        assert body['message'] == Messages.LOGIN_INVALID_CREDENTIALS, (
+            f'Получено сообщение "{body["message"]}", '
+            f'ожидалось "{Messages.LOGIN_INVALID_CREDENTIALS}"')
+        
